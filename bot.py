@@ -163,5 +163,9 @@ async def chat_entry(message: types.Message):
 
 if __name__ == '__main__':
     import asyncio
-    asyncio.run(init_db())
+    import nest_asyncio
+    nest_asyncio.apply()
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(init_db())
     executor.start_polling(dp, skip_updates=True)
