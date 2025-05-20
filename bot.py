@@ -36,6 +36,7 @@ async def init_db():
             await db.execute('''CREATE TABLE IF NOT EXISTS ads (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT)''')
             await db.execute('''CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY)''')
             await db.commit()
+        logger.info("База данных успешно инициализирована")
     except Exception as e:
         logger.error(f"Ошибка инициализации базы данных: {e}")
         raise
@@ -80,10 +81,6 @@ async def fetch_mosca_rates():
             async with session.get(url, timeout=10, headers=headers) as resp:
                 resp.raise_for_status()
                 html = await resp.text()
-    except aiohttp.ClientError as e:
-        logger.error(f"Ошибка при запросе к mosca.moscow: {e}")
-        return {'platform': 'Mosca', 'usdt': 0.0, 'btc': 0.0}
-    try:
         soup = BeautifulSoup(html, "html.parser")
         usdt = btc = 0.0
         for card in soup.select(".valuation__card"):
@@ -103,6 +100,9 @@ async def fetch_mosca_rates():
             elif "BTC" in title:
                 btc = rate
         return {'platform': 'Mosca', 'usdt': usdt, 'btc': btc}
+    except aiohttp.ClientError as e:
+        logger.error(f"Ошибка при запросе к mosca.moscow: {e}")
+        return {'platform': 'Mosca', 'usdt': 0.0, 'btc': 0.0}
     except Exception as e:
         logger.error(f"Ошибка парсинга mosca.moscow: {e}")
         return {'platform': 'Mosca', 'usdt': 0.0, 'btc': 0.0}
