@@ -1,29 +1,29 @@
 import logging
 import aiohttp
 import aiosqlite
-import os
 from bs4 import BeautifulSoup
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils import executor
+import nest_asyncio
 
-API_TOKEN = os.getenv('API_TOKEN')
-ADMIN_ID = int(os.getenv('ADMIN_ID'))
+API_TOKEN = 'ВАШ_ТОКЕН_ОТ_BOTFATHER'
+ADMIN_ID = 123456789
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
 menu = ReplyKeyboardMarkup(resize_keyboard=True)
-menu.add(KeyboardButton("📈 Курсы"), KeyboardButton("🧮 Калькулятор"))
+menu.add(KeyboardButton("📈 Курсы"), KeyboardButton("�� Калькулятор"))
 menu.add(KeyboardButton("📝 Добавить объявление"), KeyboardButton("📋 Объявления"))
 menu.add(KeyboardButton("🔄 Обновить курсы"), KeyboardButton("💬 Чат"))
 
 async def init_db():
     async with aiosqlite.connect('data.db') as db:
-        await db.execute('CREATE TABLE IF NOT EXISTS rates (platform TEXT PRIMARY KEY, usdt REAL, btc REAL)')
-        await db.execute('CREATE TABLE IF NOT EXISTS ads (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT)')
-        await db.execute('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY)')
+        await db.execute('''CREATE TABLE IF NOT EXISTS rates (platform TEXT PRIMARY KEY, usdt REAL, btc REAL)''')
+        await db.execute('''CREATE TABLE IF NOT EXISTS ads (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT)''')
+        await db.execute('''CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY)''')
         await db.commit()
 
 @dp.message_handler(commands=['start'])
@@ -91,7 +91,7 @@ async def update_rates_auto(message: types.Message):
     except Exception as e:
         await message.answer(f"Ошибка: {e}")
 
-@dp.message_handler(lambda m: m.text == "🧮 Калькулятор")
+@dp.message_handler(lambda m: m.text == "�� Калькулятор")
 async def calculator(message: types.Message):
     await message.answer("Введи в формате:\nMosca USDT 1000")
 
@@ -163,9 +163,7 @@ async def chat_entry(message: types.Message):
 
 if __name__ == '__main__':
     import asyncio
-    import nest_asyncio
     nest_asyncio.apply()
-
     loop = asyncio.get_event_loop()
     loop.run_until_complete(init_db())
     executor.start_polling(dp, skip_updates=True)
